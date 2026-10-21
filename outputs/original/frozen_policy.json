@@ -1,0 +1,64 @@
+{
+  "params": {
+    "TAG": "original",
+    "FUND": 12000000,
+    "PAY": {
+      "2": 2400000,
+      "5": 3600000
+    },
+    "GOAL_REAL": 8000000,
+    "GOAL_YEARS": 8,
+    "INFLATION": 0.025,
+    "ERP": 0.05,
+    "RISK_AVERSION": 4,
+    "LOSS_LIMIT": 0.15,
+    "CASH_BUFFER": 250000,
+    "MAX_W": 0.25,
+    "TC": 0.001,
+    "WIN": [
+      "2015-01",
+      "2022-12"
+    ],
+    "EVAL": [
+      "2023-01",
+      "2025-12"
+    ],
+    "BENCH": "SPY",
+    "FACTOR_STOCKS": [
+      "AAPL",
+      "XOM"
+    ]
+  },
+  "bond_units": {
+    "Alpha": -0.0,
+    "Beta": 2172.0,
+    "Gamma": -0.0,
+    "Delta": 3258.0
+  },
+  "growth_weights": {
+    "AAPL": 0.0,
+    "MSFT": 0.006693,
+    "JPM": 0.0,
+    "JNJ": 0.153089,
+    "UNH": 0.060028,
+    "XOM": 0.0,
+    "PG": 0.155159,
+    "HD": 0.018164,
+    "NEE": 0.106866,
+    "CAT": 0.0,
+    "SPY": 0.25,
+    "USMV": 0.25
+  },
+  "growth_usd": 6533105.78,
+  "cash_buffer_net": 243466.89422,
+  "rebalance_rule": "each December to frozen weights; trade if drift > 5pp",
+  "benchmark": "SPY",
+  "estimation_window": [
+    "2015-01",
+    "2022-12"
+  ],
+  "evaluation_window": [
+    "2023-01",
+    "2025-12"
+  ]
+}

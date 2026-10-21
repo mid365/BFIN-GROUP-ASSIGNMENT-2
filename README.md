@@ -1,21 +1,23 @@
 # Kappa Foundation — BFIN WS2026 Group Assignment
 
-Portfolio analysis for the Kappa Foundation case, with a decision date of 31 December 2022. This public repository contains the analysis code, notebooks, validation scripts, and project documentation.
-
-To respect third-party redistribution terms, the repository does not contain the course assignment PDF, downloaded market/factor datasets, processed data, or generated result files. Obtain the assignment brief from the course materials. Download data into your local working copy and generate results by following the instructions below.
+Portfolio analysis for the Kappa Foundation case, with a decision date of 31 December 2022. This repository contains the assignment brief, analysis code and notebooks, the project data snapshot, generated results, validators, and documentation. Redistribution permission for the included course and data materials was confirmed by the project owner.
 
 ## Repository layout
 
 ```text
 .
-├── data/                 # Data dictionary and candidate-eligibility evidence
+├── data/
+│   ├── raw/              # Downloaded Yahoo and Kenneth French source snapshot
+│   ├── processed/        # Monthly asset returns and factor data
+│   └── *.csv, *.md       # Provenance and data documentation
 ├── docs/
+│   ├── assignment/       # Assignment brief
 │   ├── audit/            # Data and factor-regression audit
 │   └── decisions/        # Draft decision record and its archived prior draft
 ├── notebooks/
 │   ├── analysis.ipynb    # Canonical analysis notebook
 │   └── analysis_audited.ipynb
-├── outputs/               # Generated locally by the analysis notebook
+├── outputs/original/      # Frozen-policy tables, figures, and JSON snapshot
 ├── scripts/               # Offline data and analysis validators
 ├── src/                   # Data retrieval code
 ├── config.json
@@ -35,10 +37,10 @@ To respect third-party redistribution terms, the repository does not contain the
 | Investable benchmark and comparison of sample-covariance versus single-index risk estimates | Implemented in the analysis; SPY is the configured benchmark. |
 | Market-only and multifactor regression analysis | CAPM, FF3, and FF5 analyses are implemented for the growth portfolio and selected securities. The locally audited results use a 96-month window and have the limitations described in the audit report. |
 | Frozen-strategy out-of-sample comparison and quantified reversal threshold | 2023–2025 evaluation and threshold analyses are implemented. This short retrospective period does not establish achievement of the longer-term real-value goal. |
-| Reproduction and output traceability | Retrieval code, validators, and notebooks are included. A first run requires internet access to retrieve inputs; after retrieval, data preparation, analysis, and validation run locally. Data and generated outputs are intentionally not tracked in this public repository. |
+| Reproduction and output traceability | Source data, provenance hashes, processed tables, generated outputs, retrieval code, validators, and notebooks are included. Rebuild and validate offline with the commands below. |
 | Complete course submission package | **Not complete in this repository.** The final committee memo, slide deck and editable source, decision log, contribution statement, and AI-use disclosure still need to be prepared. The decision record is a draft and must not be presented as approved. |
 
-See [the detailed audit and evidence map](docs/audit/DATA_AUDIT_REPORT.md) and [the draft decision record](docs/decisions/Initial_Decision_Record_2026-10-22.md) before relying on the results or treating the policy as approved. The assignment brief is distributed separately through the course.
+See [the detailed audit and evidence map](docs/audit/DATA_AUDIT_REPORT.md), [the assignment brief](docs/assignment/BFIN-WS2026-Group_Assignment.pdf), and [the draft decision record](docs/decisions/Initial_Decision_Record_2026-10-22.md) before relying on the results or treating the policy as approved.
 
 ## Setup
 
@@ -64,20 +66,14 @@ Open `notebooks/analysis.ipynb` in VS Code, select the `.venv` Python kernel, an
 
 ## Reproduce and validate
 
-The public repository does not include the third-party data snapshot. On the first setup, from the repository root, retrieve the inputs (internet required):
+The raw source snapshot and its provenance record are included. From the repository root, rebuild processed data and verify the raw-file hashes offline:
 
 ```powershell
-python src\download_data.py
 python scripts\validate_data.py
-```
-
-After retrieval, the source files are saved locally and the raw-source manifest records their hashes. The data validator rebuilds the processed tables from those saved files. Run the analysis notebook in VS Code or execute it with `nbconvert` as shown below. Once data are present locally, analysis and validation do not require internet access. Then run:
-
-```powershell
 python scripts\validate_analysis.py --tag original
 ```
 
-The analysis validator checks the frozen inputs and generated outputs; it makes no network requests. Result files are written under `outputs/<TAG>/` and are excluded from version control.
+The data validator rebuilds `data/processed/` and `data/source_record.csv` from the saved raw files. The analysis validator checks the frozen inputs and generated outputs. Neither validator makes network requests.
 
 For a clean-kernel notebook run from PowerShell:
 
@@ -86,17 +82,17 @@ New-Item -ItemType Directory -Force -Path "$env:TEMP\kappa_execution" | Out-Null
 python -m jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=600 --output-dir "$env:TEMP\kappa_execution" .\notebooks\analysis.ipynb
 ```
 
-Outputs are written under `outputs/<TAG>/`; the notebook's default tag is `original`. Outputs and the frozen-policy snapshot are generated locally and are not checked into this public repository. To create a separate run, change the notebook's `TAG` and mandate parameters only when an approved revision is intended. Preserve the original policy and compare revised results against the locally generated `outputs/original/`.
+Outputs are written under `outputs/<TAG>/`; the checked-in frozen run is `outputs/original/`. To create a separate run, change the notebook's `TAG` and mandate parameters only when an approved revision is intended. Preserve the original policy and compare revised results against `outputs/original/`.
 
 ## Data handling
 
-- Downloaded inputs and generated results are excluded from this public repository. Check each data provider's terms before using or redistributing data.
-- Do not edit files in `data/raw/`. Their source URLs, retrieval details, and SHA-256 hashes are recorded in the locally generated `data/raw/source_record.json`.
-- `python src/download_data.py` requires internet access for a first retrieval. It refuses to overwrite any existing raw snapshot; archive the snapshot before starting another retrieval.
+- The current raw inputs and generated results are included in this repository. Confirm applicable source terms before redistributing them outside this project.
+- Do not edit files in `data/raw/`. Their source URLs, retrieval details, and SHA-256 hashes are recorded in `data/raw/source_record.json`.
+- `python src/download_data.py` requires internet access and is only for a new retrieval. It refuses to overwrite the included raw snapshot; archive it before starting another retrieval.
 - No missing observations are silently interpolated or filled. The validators fail when required source data or generated outputs are missing or inconsistent.
 - Yahoo price history establishes trading coverage, not security eligibility or ETF mandate on the case date.
 - See [the data dictionary](data/data_dictionary.md) for source descriptions, units, and date conventions.
 
 ## Assignment schedule
 
-Check the separately distributed assignment brief and confirm current team deadlines before submitting; the decision record in this repository remains a draft.
+Check the assignment brief and confirm current team deadlines before submitting; the decision record in this repository remains a draft.

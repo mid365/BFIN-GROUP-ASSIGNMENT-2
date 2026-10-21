@@ -4,7 +4,7 @@
 
 This report summarizes checks previously performed against the local working copy of the Kappa Foundation BFIN WS2026 analysis. Paths are relative to the repository root.
 
-The public repository intentionally excludes the course assignment PDF, downloaded Yahoo and Kenneth French source data, processed datasets, source-record exports, and generated analysis outputs. These materials are not included because their redistribution rights have not been established. The historical checks below describe the local copy only. A fresh clone must obtain the assignment brief separately, retrieve data subject to provider terms, run the notebook to create outputs, and rerun both validators before treating the analysis as reproduced.
+The assignment brief, raw Yahoo and Kenneth French source snapshot, processed datasets, source records, and generated analysis outputs are included in this repository. The project owner confirmed permission to redistribute these materials here. The validation record below describes checks performed against this project snapshot; rerun the checks after changing any input or output.
 
 ## Requirement coverage and open limitations
 
@@ -16,12 +16,12 @@ The public repository intentionally excludes the course assignment PDF, download
 | Investable benchmark and alternative risk estimates | Satisfied in local analysis | SPY benchmark; `T11`–`T13`, `T16`, and `T17` | Expected returns, risk aversion, security caps, and transaction costs are team assumptions. |
 | Market-only and multifactor regressions | Satisfied in local analysis | `T18`–`T21` | CAPM, FF3, and FF5 use 96 monthly observations. Alpha estimates are uncertain and do not establish persistent skill. |
 | Out-of-sample strategy comparison and quantified reversal threshold | Satisfied in local analysis | `T22`, `T25`, and `T26` | The 2023–2025 market evaluation does not establish achievement of the longer-term real-value goal. |
-| Reproduction, data retrieval, and output traceability | Partial | `notebooks/`, `scripts/`, and `src/download_data.py` | The public repository includes code but not source datasets or generated outputs. The first data retrieval requires internet and must comply with source-provider terms. |
+| Reproduction, data retrieval, and output traceability | Satisfied for the included snapshot | `notebooks/`, `scripts/`, `src/download_data.py`, `data/raw/`, `data/processed/`, and `outputs/original/` | The included snapshot is reproducible offline. Check applicable source terms before redistributing materials outside this project. |
 | Complete course submission package | Incomplete | Draft decision record in `docs/decisions/` | The final memo, slides and editable source, decision log, contribution statement, and AI-use disclosure remain outstanding. |
 
 ## Local validation record
 
-The following checks passed on the local project copy before the data and output files were excluded from the public repository:
+The following checks passed on the local project copy; the verified data and outputs are included in this repository:
 
 - Raw-source hashes, required data columns, monthly dates, units, and common observations.
 - Candidate-universe and eligibility-register coverage.
@@ -31,16 +31,15 @@ The following checks passed on the local project copy before the data and output
 - The offline analysis validator passed with the original generated outputs.
 - The frozen policy snapshot remained unchanged during notebook runs (SHA-256 `e18c44a0831fb993237fd0f6d618642cb077f4c665c4b6b9c60e7a34791b14e5`).
 
-Re-run these checks on a fresh clone only after retrieving inputs and generating outputs. From the repository root:
+Re-run these checks from the repository root:
 
 ```powershell
-python src\download_data.py
 python scripts\validate_data.py
 python -m jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=600 --output-dir "$env:TEMP\kappa_execution" .\notebooks\analysis.ipynb
 python scripts\validate_analysis.py --tag original
 ```
 
-The downloader requires internet access and refuses to overwrite an existing data snapshot. After retrieval, the data preparation, notebook, and validators read saved local files and make no network requests.
+The included raw snapshot is sufficient for offline data preparation, notebook execution, and validation. `src/download_data.py` is only for a new online retrieval and refuses to overwrite an existing snapshot.
 
 ## Data and methods recorded locally
 
@@ -55,4 +54,4 @@ Bond prices and terms were fictional assignment-case inputs rather than a histor
 - The funding plan reconciled to USD 12,000,000, but the locally generated cash-flow table showed only USD 60 remaining after the 2024 payment and USD 150 after the 2027 payment under the stated assumptions. These should not be presented as a substantial liquidity cushion.
 - The recommended frozen growth strategy triggered one December rebalance in the 2023–2025 evaluation; the SPY benchmark triggered none. The historical backtest is retrospective and is not an unseen live test.
 - Case-date eligibility remains unverified for full compliance. Yahoo trading history does not establish security eligibility or ETF mandate.
-- The original source snapshots, processed tables, and generated outputs are not distributed with this public repository. Re-created downloads may have a different vintage; record the provenance and rerun all validations before relying on new results.
+- The source snapshot, processed tables, assignment brief, and generated outputs are included in this repository. A newly retrieved snapshot may have a different vintage; record its provenance and rerun all validations before relying on updated results.
