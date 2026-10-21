@@ -86,7 +86,7 @@ New-Item -ItemType Directory -Force -Path "$env:TEMP\kappa_execution" | Out-Null
 python -m jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=600 --output-dir "$env:TEMP\kappa_execution" .\notebooks\analysis.ipynb
 ```
 
-Outputs are written under `outputs/<TAG>/`; the checked-in frozen run is `outputs/original/`. To create a separate run, change the notebook's `TAG` and mandate parameters only when an approved revision is intended. Preserve the original policy and compare revised results against `outputs/original/`.
+Outputs are written under `outputs/<TAG>/`; the notebook's default tag is `original`. Outputs and the frozen-policy snapshot are generated locally and are not checked into this public repository. To create a separate run, change the notebook's `TAG` and mandate parameters only when an approved revision is intended. Preserve the original policy and compare revised results against the locally generated `outputs/original/`.
 
 ## Data handling
 
