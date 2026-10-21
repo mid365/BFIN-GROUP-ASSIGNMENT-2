@@ -15,8 +15,9 @@ Portfolio analysis for the Kappa Foundation case, with a decision date of 31 Dec
 │   ├── audit/            # Data and factor-regression audit
 │   └── decisions/        # Draft decision record and its archived prior draft
 ├── notebooks/
-│   ├── analysis.ipynb    # Canonical analysis notebook
-│   └── analysis_audited.ipynb
+│   ├── analysis.ipynb           # Canonical analysis notebook
+│   ├── analysis_audited.ipynb
+│   └── analysis_explained.ipynb # Code-cell explanations and requirement mapping
 ├── outputs/original/      # Frozen-policy tables, figures, and JSON snapshot
 ├── scripts/               # Offline data and analysis validators
 ├── src/                   # Data retrieval code
@@ -26,6 +27,8 @@ Portfolio analysis for the Kappa Foundation case, with a decision date of 31 Dec
 ```
 
 `notebooks/analysis_audited.ipynb` is a preserved audited copy with an additional submission-check cell. Use `notebooks/analysis.ipynb` as the canonical notebook; the analysis validator checks that copy.
+
+Read [`notebooks/analysis_explained.ipynb`](notebooks/analysis_explained.ipynb) for a walkthrough of every code cell and an explicit assessment against the professor's requirements, including the remaining eligibility and submission gaps.
 
 ## Assignment requirements and current status
 
