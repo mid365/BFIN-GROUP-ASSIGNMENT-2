@@ -1,0 +1,6 @@
+{
+  "stocks": ["AAPL", "MSFT", "JPM", "JNJ", "UNH", "XOM", "PG", "HD", "NEE", "CAT"],
+  "etfs": ["SPY", "USMV"],
+  "download_start": "2014-12-01",
+  "download_end": "2026-01-01"
+}

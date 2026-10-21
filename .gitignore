@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Third-party source data and locally generated results are not redistributed.
+/data/raw/*
+!/data/raw/french/
+!/data/raw/yahoo/
+/data/raw/french/*
+!/data/raw/french/.gitkeep
+/data/raw/yahoo/*
+!/data/raw/yahoo/.gitkeep
+/data/processed/*.csv
+/data/source_record.csv
+/outputs/*
+!/outputs/.gitkeep
+
+# The assignment brief is distributed separately by the course.
+/docs/assignment/*.pdf
