@@ -135,15 +135,49 @@ def main() -> None:
     print("PASS: raw source manifest, hashes, required columns, monthly dates, units, and common observations")
 
     eligibility = read_table(ROOT / "data" / "security_eligibility_evidence.csv")
-    evidence_columns = {"ticker", "source", "source_date", "claim", "verification_status"}
+    evidence_columns = {
+        "ticker", "source_url", "document_date", "relevant_evidence",
+        "verification_status", "limitation",
+    }
     require(evidence_columns.issubset(eligibility.columns), "Eligibility evidence register lacks required fields")
+    require(not eligibility["ticker"].duplicated().any(), "Eligibility evidence register has duplicate ticker rows")
     require(set(eligibility["ticker"]) == set(tickers), "Eligibility register does not cover every candidate")
-    print("PASS: candidate universe and eligibility register coverage")
+    require(eligibility[list(evidence_columns)].notna().all().all(),
+            "Eligibility evidence register contains empty required fields")
+    require(eligibility["source_url"].str.startswith("https://www.sec.gov/Archives/").all(),
+            "Primary eligibility sources must be official SEC filing URLs")
+    evidence_dates = pd.to_datetime(eligibility["document_date"], errors="coerce")
+    require(evidence_dates.notna().all() and (evidence_dates <= pd.Timestamp("2022-12-31")).all(),
+            "Eligibility evidence has a missing or post-cutoff document date")
+    require(eligibility["verification_status"].eq("partial").all(),
+            "Do not mark case-date eligibility verified without a source that establishes it")
+    require(eligibility["limitation"].str.len().gt(0).all(),
+            "Eligibility evidence must state its case-date limitation")
+    print("PASS: official dated source and explicit case-date limitations for all candidates")
 
     universe = read_table(output / "T02_universe.csv", index_col=0)
     require(set(stocks).issubset(universe.index), "Universe output omits one or more stocks")
     require(universe.loc[stocks, "sector"].nunique() >= 4, "Stock candidates span fewer than four sectors")
     require(set(etfs).issubset(universe.index), "Universe output omits one or more ETF candidates")
+    if args.tag != "original":
+        expected_t02_columns = {
+            "eligibility_evidence", "eligibility_source", "eligibility_source_date",
+            "eligibility_verification_status", "eligibility_limitation",
+            "corroborating_source_url", "corroborating_document_date",
+        }
+        require(expected_t02_columns.issubset(universe.columns),
+                "Refreshed universe output lacks dated eligibility evidence fields")
+        evidence_by_ticker = eligibility.set_index("ticker")
+        for ticker in tickers:
+            require(
+                universe.loc[ticker, "eligibility_evidence"] == evidence_by_ticker.loc[ticker, "relevant_evidence"]
+                and universe.loc[ticker, "eligibility_source"] == evidence_by_ticker.loc[ticker, "source_url"]
+                and universe.loc[ticker, "eligibility_source_date"] == evidence_by_ticker.loc[ticker, "document_date"]
+                and universe.loc[ticker, "eligibility_verification_status"]
+                == evidence_by_ticker.loc[ticker, "verification_status"]
+                and universe.loc[ticker, "eligibility_limitation"] == evidence_by_ticker.loc[ticker, "limitation"],
+                f"T02 eligibility evidence does not match the register for {ticker}",
+            )
 
     policy_path = output / "frozen_policy.json"
     require(policy_path.is_file(), f"Missing frozen policy snapshot: {policy_path}")
@@ -158,6 +192,24 @@ def main() -> None:
     require(np.isclose(weights.sum(), 1.0, atol=1e-8), "Frozen growth weights do not sum to one")
     require((weights >= -1e-10).all() and (weights <= params["MAX_W"] + 1e-8).all(),
             "Frozen growth weights violate long-only or per-security cap")
+    if args.tag != "original":
+        baseline = json.loads((ROOT / "outputs" / "original" / "frozen_policy.json").read_text(encoding="utf-8"))
+        baseline_params = {key: value for key, value in baseline["params"].items() if key != "TAG"}
+        revised_params = {key: value for key, value in params.items() if key != "TAG"}
+        require(revised_params == baseline_params, "Review run changed a frozen policy parameter")
+        require(policy["bond_units"] == baseline["bond_units"], "Review run changed the bond allocation")
+        require(policy["growth_weights"] == baseline["growth_weights"], "Review run changed portfolio weights")
+        require(policy["growth_usd"] == baseline["growth_usd"], "Review run changed the growth allocation")
+        require(policy["rebalance_rule"] == baseline["rebalance_rule"],
+                "Review run changed the rebalancing rule")
+        baseline_allocation = read_table(ROOT / "outputs" / "original" / "T17_initial_allocation.csv", index_col=0)
+        refreshed_allocation = read_table(output / "T17_initial_allocation.csv", index_col=0)
+        require(
+            baseline_allocation.shape == refreshed_allocation.shape
+            and np.allclose(baseline_allocation.to_numpy(dtype=float),
+                            refreshed_allocation.to_numpy(dtype=float), rtol=0, atol=1e-8),
+            "Review run changed the original initial-dollar allocation",
+        )
     risk_estimate_weights = read_table(output / "T11_weights_si_vs_sample.csv", index_col=0)
     require({"single_index", "sample_cov"}.issubset(risk_estimate_weights.columns),
             "Risk-estimator comparison omits portfolio weights")
@@ -231,7 +283,7 @@ def main() -> None:
     evaluation_summary = read_table(output / "T22_evaluation_2023_2025.csv", index_col=0)
     require(required_strategies.issubset(evaluation_summary.index),
             "Evaluation summary omits the frozen strategy or benchmark")
-    notebook = json.loads((ROOT / "notebooks" / "analysis.ipynb").read_text(encoding="utf-8"))
+    notebook = json.loads((ROOT / "Bài nộp cho 2210" / "analysis.ipynb").read_text(encoding="utf-8"))
     strategy_cells = [
         "".join(cell.get("source", []))
         for cell in notebook.get("cells", [])

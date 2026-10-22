@@ -29,6 +29,12 @@ This package supports the Kappa Foundation BFIN WS2026 assignment. The data are 
 - Bond cash flows are annual on 31 December; settlement is immediately after the 2022 coupon date with zero accrued interest
 - Bond IDs: Alpha, Beta, Gamma, Delta, Epsilon
 
+### Security eligibility evidence (`data/security_eligibility_evidence.csv`)
+- One row per candidate ticker, with the primary official SEC `source_url`, `document_date`, relevant `relevant_evidence`, `verification_status`, and explicit `limitation`
+- Stock rows also include a corroborating secondary S&P 500 constituent `corroborating_source_url` and `corroborating_document_date`
+- All candidates currently have `partial` status: the cited documents establish the recorded facts on their document dates, not continued listing/eligibility on 31 December 2022
+- The register feeds the refreshed `T02_universe.csv` under `outputs/eligibility_review_2026-10-22/`; the original output remains preserved
+
 ## Processed data files
 
 ### `data/processed/monthly_returns.csv`
